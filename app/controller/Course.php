@@ -6,6 +6,7 @@ use think\exception\ValidateException;
 use app\validate\Course as CourseVerify;
 
 use think\facade\Request;
+use think\facade\Db;
 
 use app\model\User as UserModel;
 use app\model\Classes as ClassesModel;
@@ -73,8 +74,10 @@ class Course extends Base
         }
 
         // //4. 删除课程
-        // TODO: 添加事务处理
-        // TODO: 删除课程对应的用户
+
+        // DONE: 添加事务处理       √
+        // DONE: 删除课程对应的用户 √
+
         //启动事务处理
         CourseModel::startTrans();
         //思路：获取course_id后再获得该course_id下的班级列表,对该班级列表进行删除班级
@@ -88,25 +91,21 @@ class Course extends Base
                 delete_class_event($class)==true?++$size:$size;
             if($size==$count){
                 CourseModel::commit();
-                return $this->build($course,"删除成功");
             }
             else{
                 CourseModel::rollback();
-                var_dump($string."班级数：$count ,成功删除数：$size");
-                return $this->build($course,"删除课程失败,已回滚数据1")->code(500);
+                return $this->build(NULL,"删除失败，请稍后再试")->code(500);
+
             }
             
         }
         catch (\Exception $e) {
             CourseModel::rollback();
-            var_dump($string."班级数：$count,成功删除数：$size");
-            return $this->build($course,"删除课程失败,已回滚数据2")->code(500);
-        }
-        
-        // $course->together(["classes"])->where("id", $courseId)->delete();
-        // $course->classes()->where("course_id", $courseId)->delete();
 
-        // return $this->build(NULL, "删除成功");
+            return $this->build(NULL,"删除失败，请稍后再试")->code(500);
+        }
+        return $this->build($course,"删除成功");
+        
     }
 
     public function updateCourse()

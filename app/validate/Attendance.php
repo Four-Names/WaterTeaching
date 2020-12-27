@@ -19,6 +19,8 @@ class Attendance extends Validate
         'describ|描述'                 =>      'max:100',
         'class_id|课程ID'              =>      'require',
         'status|考勤状态'              =>       'between:0,7'
+        'classes_id|课程ID'              =>      'require',
+
     ];
 
     /**

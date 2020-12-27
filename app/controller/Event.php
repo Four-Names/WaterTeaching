@@ -6,15 +6,6 @@ use app\model\User as UserModel;
 use app\model\Classes as ClassesModel;
 use app\model\Member as MemberModel;
 use app\model\Course as CourseModel;
-use app\model\Attendance as AttendanceModel;
-use app\model\AttendanceLog as AttendanceLogModel;
-//事务处理
-
-//删除班级
-//思路：
-//因为已找到班级id所以删除班级id可以直接删除
-//之后判断该班级下的成员是否为空,为空则返回true代表删除成功
-//否则执行删除班级下的成员操作,删除成功则返回true否则返回删除失败并回滚数据
     function delete_class_event($classId){
         ClassesModel::startTrans();//启动事务处理
         MemberModel::startTrans();//启动事务处理
@@ -44,6 +35,7 @@ use app\model\AttendanceLog as AttendanceLogModel;
         else{
             return true;
         }
+
     }
     ////判断该用户是否班级创建者
     //思路：在该用户创建的班级里面寻找对应classid

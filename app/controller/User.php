@@ -5,12 +5,14 @@ namespace app\controller;
 use think\exception\ValidateException;
 use app\validate\User as UserVerify;
 
-use think\facade\Request;
+use think\facade\Request; 
 
 use \JWT as JWT;
 
 use app\model\User as UserModel;
 use app\controller\Base;
+
+
 
 class User extends Base
 {
@@ -21,7 +23,7 @@ class User extends Base
 
     public function register()
     {
-        $receive_field = ['username','password', 'email', 'confirm'];  //接收字段
+        $receive_field = ['username','password', 'email' , 'confirm'];  //接收字段
         $visible_field = ['id', 'username', 'email'];  //输出字段
         $write_field = array_slice($receive_field, 0, -1); //写入字段
 
