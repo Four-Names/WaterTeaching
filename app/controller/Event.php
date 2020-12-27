@@ -7,9 +7,6 @@ use app\model\Classes as ClassesModel;
 use app\model\Member as MemberModel;
 use app\model\Course as CourseModel;
 
-//事务处理
-
-//删除班级
     function delete_class_event($classId){
         ClassesModel::startTrans();//启动事务处理
         MemberModel::startTrans();//启动事务处理
