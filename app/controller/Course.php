@@ -7,12 +7,13 @@ use app\validate\Course as CourseVerify;
 
 use think\facade\Request;
 
-use app\model\Course as CourseModel;
+use app\model\User as UserModel;
 use app\model\Classes as ClassesModel;
 use app\model\Member as MemberModel;
-use app\model\User as UserModel;
+use app\model\Course as CourseModel;
 use app\controller\Base;
 
+include "Event.php";
 class Course extends Base
 {
     public function index()
@@ -74,10 +75,38 @@ class Course extends Base
         // //4. 删除课程
         // TODO: 添加事务处理
         // TODO: 删除课程对应的用户
-        $course->together(["classes"])->where("id", $courseId)->delete();
-        $course->classes()->where("course_id", $courseId)->delete();
+        //启动事务处理
+        CourseModel::startTrans();
+        //思路：获取course_id后再获得该course_id下的班级列表,对该班级列表进行删除班级
+        $class_list = ClassesModel::where('course_id',$courseId)->column('id');
+        $hasDelClasses = CourseModel::where('id',$courseId)->delete();
+        $string="";
+        $count = count($class_list);
+        $size = 0;
+        try{
+            foreach($class_list as $class)
+                delete_class_event($class)==true?++$size:$size;
+            if($size==$count){
+                CourseModel::commit();
+                return $this->build($course,"删除成功");
+            }
+            else{
+                CourseModel::rollback();
+                var_dump($string."班级数：$count ,成功删除数：$size");
+                return $this->build($course,"删除课程失败,已回滚数据1")->code(500);
+            }
+            
+        }
+        catch (\Exception $e) {
+            CourseModel::rollback();
+            var_dump($string."班级数：$count,成功删除数：$size");
+            return $this->build($course,"删除课程失败,已回滚数据2")->code(500);
+        }
+        
+        // $course->together(["classes"])->where("id", $courseId)->delete();
+        // $course->classes()->where("course_id", $courseId)->delete();
 
-        return $this->build(NULL, "删除成功");
+        // return $this->build(NULL, "删除成功");
     }
 
     public function updateCourse()
@@ -216,4 +245,5 @@ class Course extends Base
 
         return $this->build($result);
     }
+
 }

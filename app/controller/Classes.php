@@ -12,11 +12,13 @@ use think\facade\Validate;
 use app\model\User as UserModel;
 use app\model\Classes as ClassesModel;
 use app\model\Member as MemberModel;
+use app\model\Course as CourseModel;
+use think\facade\Db;
 
 use app\controller\Base;
-
+include "Event.php";
 class Classes extends Base
-{
+{ 
     // static function isTeacher($curUserId,$teacherId) {
 
     // }
@@ -85,14 +87,11 @@ class Classes extends Base
             return $this->build(NULL, "没有权限", 403)->code(403);
         }
 
-        //4. 删除课程
-        //TODO: 添加事务处理
-        $class->together(["member"])->where("id", $classId)->delete();
-        $class->member()->where("classes_id", $classId)->delete();
-
-        return $this->build($class, "删除成功");
+        //删除班级的事务处理
+        return delete_class_event($classId)?$this->build($class,"删除成功"):$this->build($class,"删除失败已回滚数据")->code(500);
+        
     }
-
+    
     public function updateClass()
     {
         //0. 定义字段
